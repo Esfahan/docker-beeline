@@ -10,13 +10,13 @@ Prepare the files below and put into the each dir.
 
 ## Build
 
-### For CentOS
+### CentOS
 
 ```
 $ sudo docker build -f Dockerfile_centos -t beeline-centos ./
 ```
 
-### For Debian
+### Debian
 
 ```
 $ sudo docker build -f Dockerfile_debian -t beeline-debian ./
