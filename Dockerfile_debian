@@ -1,0 +1,49 @@
+From debian:10
+ 
+RUN apt-get update -y
+ 
+########
+# java
+########
+RUN apt-get install -y openjdk-11-jdk
+ 
+ARG JAVA_HOME="export JAVA_HOME=`dirname $(readlink $(readlink $(which java))) | sed -e 's/\/bin//'`"
+ARG PATH_VALUE='PATH=$PATH:$JAVA_HOME/bin'
+ARG CLASSPATH='CLASSPATH=.:$JAVA_HOME/jre/lib:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar'
+RUN echo "${JAVA_HOME}\n${PATH_VALUE}\n${CLASSPATH}" >> $HOME/.bashrc
+ 
+##########
+# beeline
+##########
+ARG WORKDIR=/usr/local/src
+ 
+RUN apt-get install -y curl
+ 
+WORKDIR ${WORKDIR}
+RUN curl -OL https://archive.apache.org/dist/hadoop/core/hadoop-2.5.1/hadoop-2.5.1.tar.gz
+RUN tar -C / -xvzf hadoop-2.5.1.tar.gz
+ 
+WORKDIR ${WORKDIR}
+RUN curl -OL https://archive.apache.org/dist/hive/hive-1.2.1/apache-hive-1.2.1-bin.tar.gz
+RUN tar -C / -xvzf apache-hive-1.2.1-bin.tar.gz
+ 
+ENV HADOOP_HOME=/hadoop-2.5.1
+ENV HIVE_HOME=/apache-hive-1.2.1-bin
+ENV PATH=$PATH:$HIVE_HOME/bin
+ 
+# Add core-site.xml
+COPY files/hadoop /hadoop
+RUN mv /hadoop-2.5.1/etc/hadoop/core-site.xml /hadoop-2.5.1/etc/hadoop/core-site.xml.org
+RUN cp /hadoop/core-site.xml /hadoop-2.5.1/etc/hadoop/core-site.xml
+ 
+############
+# kerberos
+############
+COPY files/secrets /secrets
+COPY files/krb5/krb5.conf /etc
+ 
+# kerberos
+RUN apt-get install -y krb5-user
+ 
+RUN mv /secrets/ca-bundle.crt /etc/ssl/certs/ca-bundle.crt
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-bundle.crt

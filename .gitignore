@@ -1,0 +1,10 @@
+files/secrets/*
+!files/secrets/.keep
+files/krb5/*
+!files/krb5/.keep
+files/hadoop/*
+!files/hadoop/.keep
+
+*.swp
+*~
+
